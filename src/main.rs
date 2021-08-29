@@ -2,6 +2,7 @@
 #![no_main]
 
 use panic_halt as _;
+use cortex_m::asm;
 use cortex_m_rt::{entry, exception};
 use cortex_m_semihosting::hprintln;
 use stm32f1::stm32f103;
@@ -21,7 +22,7 @@ fn main() -> ! {
 
     loop {
         unsafe { 
-            while !SYSTICK_QUEUED {} 
+            while !SYSTICK_QUEUED { asm::nop(); } // do not optimize this loop in release
             SYSTICK_QUEUED = false
         }
         led_state = !led_state;
