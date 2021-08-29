@@ -3,6 +3,7 @@
 
 use panic_halt as _;
 use cortex_m_rt::{entry, exception};
+use cortex_m_semihosting::hprintln;
 use stm32f1::stm32f103;
 use stm32f1::stm32f103::Peripherals;
 
@@ -10,6 +11,7 @@ static mut SYSTICK_QUEUED: bool = false;
 
 #[entry]
 fn main() -> ! {
+    hprintln!("-------->> HELLO RUST! <<--------").unwrap();
     let peripherals = stm32f103::Peripherals::take().unwrap();
     config_gpio(&peripherals);
     config_stk(& peripherals);
