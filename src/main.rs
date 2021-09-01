@@ -4,41 +4,45 @@
 use panic_halt as _;
 use cortex_m::asm;
 use cortex_m_rt::{entry, exception};
-use cortex_m_semihosting::hprintln;
+// use cortex_m_semihosting::hprintln;
 use stm32f1::stm32f103;
 use stm32f1::stm32f103::Peripherals;
 
 static mut SYSTICK_QUEUED: bool = false;
 
+// ----------------------------------------------------------------------------
+
 #[entry]
 fn main() -> ! {
-    hprintln!("-------->> HELLO RUST! <<--------").unwrap();
+    // hprintln!("-------->> HELLO RUST! <<--------").unwrap();
     let peripherals = stm32f103::Peripherals::take().unwrap();
     config_gpio(&peripherals);
     config_stk(& peripherals);
 
-    let gpiob = &peripherals.GPIOB;
+    let gpioa = &peripherals.GPIOA;
     let mut led_state = false;
 
     loop {
-        unsafe { 
+        unsafe {
             while !SYSTICK_QUEUED { asm::nop(); } // do not optimize this loop in release
             SYSTICK_QUEUED = false
         }
         led_state = !led_state;
-        gpiob.odr.write(|w| match led_state {
-            true => w.odr12().set_bit(),
-            false => w.odr12().clear_bit(),
+        gpioa.odr.write(|w| match led_state {
+            true => w.odr5().set_bit(),
+            false => w.odr5().clear_bit(),
         });
     }
 }
 
+// ----------------------------------------------------------------------------
+
 fn config_gpio(p: &Peripherals) {
-    p.RCC.apb2enr.modify(|_, w| w.iopben().set_bit()); // enable clock for GPIOB
-    p.GPIOB.crh.modify(|_, w| {
+    p.RCC.apb2enr.modify(|_, w| w.iopaen().set_bit()); // enable clock for GPIOA
+    p.GPIOA.crl.modify(|_, w| {
         w
-            .mode12().bits(0b01) // 10MHz output
-            .cnf12().bits(0b00) // push-pull ouptut
+            .mode5().bits(0b01) // 10MHz output
+            .cnf5().bits(0b00) // push-pull ouptut
     });
 }
 
